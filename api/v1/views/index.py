@@ -10,6 +10,10 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 
+classes = {"users": "User", "places": "Place", "states": "State",
+           "cities": "City", "amenities": "Amenity",
+           "reviews": "Review"}
+
 
 @app_views.route('/status', methods=['GET'])
 def get_status():
@@ -20,12 +24,7 @@ def get_status():
 @app_views.route('/stats', methods=['GET'])
 def get_stats():
     """Return the number of each objects by type."""
-    stats = {
-        "User": storage.count(User),
-        "State": storage.count(State),
-        "City": storage.count(City),
-        "Amenity": storage.count(Amenity),
-        "Place": storage.count(Place),
-        "Review": storage.count(Review)
-    }
-    return jsonify(stats)
+    dicta = {}
+    for dicta_cls in classes:
+        dicta[dicta_cls] = storage.count(classes[dicta_cls])
+    return jsonify(dicta)
