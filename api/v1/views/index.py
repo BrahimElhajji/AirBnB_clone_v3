@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+"""index"""
 from flask import jsonify
 from api.v1.views import app_views
 from models import storage
@@ -28,4 +28,4 @@ def get_stats():
         "Place": storage.count(Place),
         "Review": storage.count(Review)
     }
-return jsonify(stats)
+    return jsonify(stats)
