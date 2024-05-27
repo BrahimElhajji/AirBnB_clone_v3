@@ -43,7 +43,8 @@ class TestFileStorageDocs(unittest.TestCase):
     def test_pep8_conformance_test_file_storage(self):
         """Test tests/test_models/test_file_storage.py conforms to PEP8."""
         pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['tests/test_models/test_engine/test_file_storage.py'])
+        result = pep8s.check_files(
+                ['tests/test_models/test_engine/test_file_storage.py'])
         self.assertEqual(result.total_errors, 0,
                          "Found code style errors (and warnings).")
 
@@ -133,7 +134,9 @@ class TestFileStorage(unittest.TestCase):
         count = storage.count()
         self.assertEqual(count, len(storage.all()))
         count_base_model = storage.count(BaseModel)
-        self.assertEqual(count_base_model, len([obj for obj in storage.all().values() if isinstance(obj, BaseModel)]))
+        self.assertEqual(count_base_model, len(
+            [obj for obj in storage.all().values() if isinstance(
+                obj, BaseModel)]))
 
 
 class TestDBStorage(unittest.TestCase):
@@ -156,4 +159,6 @@ class TestDBStorage(unittest.TestCase):
         count = self.db_storage.count()
         self.assertEqual(count, len(self.db_storage.all()))
         count_base_model = self.db_storage.count(BaseModel)
-        self.assertEqual(count_base_model, len([obj for obj in self.db_storage.all().values() if isinstance(obj, BaseModel)]))
+        self.assertEqual(count_base_model, len(
+            [obj for obj in self.db_storage.all().values() if isinstance(
+                obj, BaseModel)]))
