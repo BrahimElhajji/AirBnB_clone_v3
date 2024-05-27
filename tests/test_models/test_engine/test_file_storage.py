@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 """
-Contains the TestFileStorageDocs classes
+Contains the TestFileStorageDocs and TestFileStorage classes
 """
 
 from datetime import datetime
 import inspect
 import models
-from models.engine import file_storage
+from models.engine import db_storage, file_storage
 from models.amenity import Amenity
 from models.base_model import BaseModel
 from models.city import City
@@ -18,6 +18,9 @@ import json
 import os
 import pep8
 import unittest
+from unittest.mock import patch
+
+DBStorage = db_storage.DBStorage
 FileStorage = file_storage.FileStorage
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
@@ -40,8 +43,7 @@ class TestFileStorageDocs(unittest.TestCase):
     def test_pep8_conformance_test_file_storage(self):
         """Test tests/test_models/test_file_storage.py conforms to PEP8."""
         pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['tests/test_models/test_engine/\
-test_file_storage.py'])
+        result = pep8s.check_files(['tests/test_models/test_engine/test_file_storage.py'])
         self.assertEqual(result.total_errors, 0,
                          "Found code style errors (and warnings).")
 
@@ -113,3 +115,45 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_get(self):
+        """Test the get method of FileStorage"""
+        storage = FileStorage()
+        instance = BaseModel()
+        instance_key = instance.__class__.__name__ + "." + instance.id
+        storage.new(instance)
+        result = storage.get(BaseModel, instance.id)
+        self.assertEqual(result, instance)
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count(self):
+        """Test the count method of FileStorage"""
+        storage = FileStorage()
+        count = storage.count()
+        self.assertEqual(count, len(storage.all()))
+        count_base_model = storage.count(BaseModel)
+        self.assertEqual(count_base_model, len([obj for obj in storage.all().values() if isinstance(obj, BaseModel)]))
+
+
+class TestDBStorage(unittest.TestCase):
+    """Test the DBStorage class"""
+    def setUp(self):
+        """Initialize DBStorage instance for testing"""
+        self.db_storage = DBStorage()
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_get(self):
+        """Test the get method of DBStorage"""
+        instance = BaseModel()
+        instance.save()
+        result = self.db_storage.get(BaseModel, instance.id)
+        self.assertEqual(result, instance)
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_count(self):
+        """Test the count method of DBStorage"""
+        count = self.db_storage.count()
+        self.assertEqual(count, len(self.db_storage.all()))
+        count_base_model = self.db_storage.count(BaseModel)
+        self.assertEqual(count_base_model, len([obj for obj in self.db_storage.all().values() if isinstance(obj, BaseModel)]))
