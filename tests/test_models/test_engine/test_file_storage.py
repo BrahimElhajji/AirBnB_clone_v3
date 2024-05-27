@@ -133,3 +133,6 @@ class TestFileStorage(unittest.TestCase):
         mock_count.return_value = 5
         result = self.file_storage.count("TestModel")
         self.assertEqual(result, 5)
+
+if __name__ == '__main__':
+    unittest.main()
