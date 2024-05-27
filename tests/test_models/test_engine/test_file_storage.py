@@ -114,21 +114,22 @@ class TestFileStorage(unittest.TestCase):
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
 
+
 class TestFileStorage(unittest.TestCase):
     def setUp(self):
-        # Initialize FileStorage instance or any setup required
+        """Initialize FileStorage instance or any setup required"""
         self.file_storage = FileStorage()
 
     @patch('your_module.FileStorage.get')
     def test_get(self, mock_get):
-        # Test the get method
+        """Test the get method"""
         mock_get.return_value = {"id": 1, "name": "test"}
         result = self.file_storage.get("TestModel", 1)
         self.assertEqual(result, {"id": 1, "name": "test"})
 
     @patch('your_module.FileStorage.count')
     def test_count(self, mock_count):
-        # Test the count method
+        """Test the count method"""
         mock_count.return_value = 5
         result = self.file_storage.count("TestModel")
         self.assertEqual(result, 5)

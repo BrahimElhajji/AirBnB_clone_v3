@@ -90,19 +90,19 @@ class TestFileStorage(unittest.TestCase):
 
 class TestDBStorage(unittest.TestCase):
     def setUp(self):
-        # Initialize DBStorage instance or any setup required
+        """Initialize DBStorage instance or any setup required"""
         self.db_storage = DBStorage()
 
     @patch('your_module.DBStorage.get')
     def test_get(self, mock_get):
-        # Test the get method
+        """Test the get method"""
         mock_get.return_value = {"id": 1, "name": "test"}
         result = self.db_storage.get("TestModel", 1)
         self.assertEqual(result, {"id": 1, "name": "test"})
 
     @patch('your_module.DBStorage.count')
     def test_count(self, mock_count):
-        # Test the count method
+        """Test the count method"""
         mock_count.return_value = 5
         result = self.db_storage.count("TestModel")
         self.assertEqual(result, 5)
