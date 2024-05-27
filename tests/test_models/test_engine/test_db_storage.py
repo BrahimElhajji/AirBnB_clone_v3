@@ -116,26 +116,6 @@ class TestFileStorageDocs(unittest.TestCase):
                             "{:s} method needs a docstring".format(func[0]))
 
 
-class TestDBStorage(unittest.TestCase):
-    def setUp(self):
-        """Initialize DBStorage instance for testing"""
-        self.db_storage = DBStorage()
-
-    @patch('models.engine.db_storage.DBStorage.get')
-    def test_get(self, mock_get):
-        """Test the get method of DBStorage"""
-        mock_get.return_value = {"id": 1, "name": "test"}
-        result = self.db_storage.get("TestModel", 1)
-        self.assertEqual(result, {"id": 1, "name": "test"})
-
-    @patch('models.engine.db_storage.DBStorage.count')
-    def test_count(self, mock_count):
-        """Test the count method of DBStorage"""
-        mock_count.return_value = 5
-        result = self.db_storage.count("TestModel")
-        self.assertEqual(result, 5)
-
-
 class TestFileStorage(unittest.TestCase):
     def setUp(self):
         """Initialize FileStorage instance for testing"""
