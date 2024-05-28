@@ -107,5 +107,6 @@ class TestDBStorage(unittest.TestCase):
         result = self.db_storage.count("TestModel")
         self.assertEqual(result, 5)
 
+
 if __name__ == '__main__':
     unittest.main()
