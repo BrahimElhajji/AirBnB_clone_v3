@@ -117,22 +117,47 @@ class TestFileStorage(unittest.TestCase):
 
 class TestFileStorage(unittest.TestCase):
     def setUp(self):
-        """Initialize FileStorage instance or any setup required"""
+        """Set up the test environment"""
         self.file_storage = FileStorage()
 
-    @patch('your_module.FileStorage.get')
-    def test_get(self, mock_get):
-        """Test the get method"""
-        mock_get.return_value = {"id": 1, "name": "test"}
-        result = self.file_storage.get("TestModel", 1)
-        self.assertEqual(result, {"id": 1, "name": "test"})
+    def test_count_no_args(self):
+        """Test count method without arguments"""
+        user1 = User(name="John", email="john@example.com")
+        user2 = User(name="Jane", email="jane@example.com")
+        self.file_storage.new(user1)
+        self.file_storage.new(user2)
+        self.file_storage.save()
 
-    @patch('your_module.FileStorage.count')
-    def test_count(self, mock_count):
-        """Test the count method"""
-        mock_count.return_value = 5
-        result = self.file_storage.count("TestModel")
-        self.assertEqual(result, 5)
+        count = self.file_storage.count()
+        self.assertEqual(count, 2)
+
+    def test_count_with_arg(self):
+        """Test count method with a class argument"""
+        user1 = User(name="John", email="john@example.com")
+        user2 = User(name="Jane", email="jane@example.com")
+        state = State(name="California")
+        self.file_storage.new(user1)
+        self.file_storage.new(user2)
+        self.file_storage.new(state)
+        self.file_storage.save()
+
+        count = self.file_storage.count(User)
+        self.assertEqual(count, 2)
+
+        count = self.file_storage.count(State)
+        self.assertEqual(count, 1)
+
+    def test_get(self):
+        """Test get method"""
+        user1 = User(name="John", email="john@example.com")
+        self.file_storage.new(user1)
+        self.file_storage.save()
+
+        user = self.file_storage.get(User, user1.id)
+        self.assertEqual(user.name, "John")
+
+        user = self.file_storage.get(User, "invalid_id")
+        self.assertIsNone(user)
 
 
 if __name__ == '__main__':
