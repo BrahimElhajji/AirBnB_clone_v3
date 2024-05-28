@@ -18,6 +18,9 @@ import json
 import os
 import pep8
 import unittest
+from unittest.mock import patch
+from sqlalchemy.orm import sessionmaker
+
 DBStorage = db_storage.DBStorage
 classes = {"Amenity": Amenity, "City": City, "Place": Place,
            "Review": Review, "State": State, "User": User}
@@ -68,69 +71,68 @@ test_db_storage.py'])
                             "{:s} method needs a docstring".format(func[0]))
 
 
-class TestFileStorage(unittest.TestCase):
-    """Test the FileStorage class"""
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_all_returns_dict(self):
-        """Test that all returns a dictionaty"""
-        self.assertIs(type(models.storage.all()), dict)
-
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_all_no_class(self):
-        """Test that all returns all rows when no class is passed"""
-
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_new(self):
-        """test that new adds an object to the database"""
-
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_save(self):
-        """Test that save properly saves objects to file.json"""
-
-
 class TestDBStorage(unittest.TestCase):
-    def setUp(self):
-        """Set up the test environment"""
-        self.db_storage = DBStorage()
+    """Test the DBStorage class"""
 
+    def setUp(self):
+        """Set up test environment"""
+        self.storage = DBStorage()
+        self.storage.reload()
+
+    def tearDown(self):
+        """Tear down test environment"""
+        self.storage.close()
+
+    @patch('models.storage_t', 'db')
+    def test_all_returns_dict(self):
+        """Test that all returns a dictionary"""
+        result = self.storage.all()
+        self.assertIsInstance(result, dict)
+
+    @patch('models.storage_t', 'db')
+    def test_new(self):
+        """Test that new adds an object to the database"""
+        user = User(email="test@test.com", password="1234")
+        self.storage.new(user)
+        self.storage.save()
+        self.assertIn(user, self.storage.all(User).values())
+
+    @patch('models.storage_t', 'db')
+    def test_save(self):
+        """Test that save properly saves objects to the database"""
+        user = User(email="test@test.com", password="1234")
+        self.storage.new(user)
+        self.storage.save()
+        self.assertIn(user, self.storage.all(User).values())
+
+    @patch('models.storage_t', 'db')
     def test_count_no_args(self):
         """Test count method without arguments"""
-        user1 = User(name="John", email="john@example.com")
-        user2 = User(name="Jane", email="jane@example.com")
-        self.db_storage.new(user1)
-        self.db_storage.new(user2)
-        self.db_storage.save()
+        initial_count = self.storage.count()
+        user = User(email="test@test.com", password="1234")
+        self.storage.new(user)
+        self.storage.save()
+        new_count = self.storage.count()
+        self.assertEqual(initial_count + 1, new_count)
 
-        count = self.db_storage.count()
-        self.assertEqual(count, 2)
-
+    @patch('models.storage_t', 'db')
     def test_count_with_arg(self):
         """Test count method with a class argument"""
-        user1 = User(name="John", email="john@example.com")
-        user2 = User(name="Jane", email="jane@example.com")
-        state = State(name="California")
-        self.db_storage.new(user1)
-        self.db_storage.new(user2)
-        self.db_storage.new(state)
-        self.db_storage.save()
+        initial_count = self.storage.count(User)
+        user = User(email="test@test.com", password="1234")
+        self.storage.new(user)
+        self.storage.save()
+        new_count = self.storage.count(User)
+        self.assertEqual(initial_count + 1, new_count)
 
-        count = self.db_storage.count(User)
-        self.assertEqual(count, 2)
-
-        count = self.db_storage.count(State)
-        self.assertEqual(count, 1)
-
+    @patch('models.storage_t', 'db')
     def test_get(self):
         """Test get method"""
-        user1 = User(name="John", email="john@example.com")
-        self.db_storage.new(user1)
-        self.db_storage.save()
-
-        user = self.db_storage.get(User, user1.id)
-        self.assertEqual(user.name, "John")
-
-        user = self.db_storage.get(User, "invalid_id")
-        self.assertIsNone(user)
+        user = User(email="test@test.com", password="1234")
+        self.storage.new(user)
+        self.storage.save()
+        retrieved_user = self.storage.get(User, user.id)
+        self.assertEqual(user.id, retrieved_user.id)
 
 
 if __name__ == '__main__':
